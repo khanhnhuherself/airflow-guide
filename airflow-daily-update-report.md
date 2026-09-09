@@ -29,7 +29,7 @@
 
 **Airflow = Công cụ tự động hóa data pipeline** — viết một lần, chạy mỗi ngày đúng giờ, đúng thứ tự, tự alert Slack khi lỗi.
 
-Lý do cần: Mỗi ngày hàng chục bảng cần được cập nhật — xóa số liệu cũ, điền số liệu mới. Làm tay thì dễ quên, dễ chạy sai thứ tự, và không ai biết khi nào thì xong. Airflow giải quyết cả 3 vấn đề đó.
+Khi số lượng bảng cần cập nhật hàng ngày tăng lên, việc thực hiện thủ công dễ xảy ra sai sót về thứ tự, bỏ sót bước, hoặc không có cơ chế phát hiện lỗi kịp thời. Airflow giải quyết cả ba vấn đề bằng cách biến quy trình thành code — chạy tự động theo lịch, đúng thứ tự, và gửi alert khi có lỗi.
 
 ---
 
@@ -59,7 +59,7 @@ DAG file **không chứa logic xử lý dữ liệu** — nó chỉ là "kịch 
 
 **Plugin = File chứa logic xử lý thực sự** — câu SQL, hàm tính toán, kết nối BigQuery.
 
-Lý do cần tách riêng: DAG file chỉ nên nói "làm gì, thứ tự nào" — còn *làm thế nào* (câu SQL cụ thể, logic tính AUM) nên nằm ở chỗ khác để dễ đọc, dễ test, dễ sửa độc lập. Plugin là chỗ đó.
+DAG file chỉ nên mô tả "làm gì, thứ tự nào" — còn *làm thế nào* (câu SQL cụ thể, logic tính AUM) nên tách ra ngoài để dễ đọc, dễ test, và dễ sửa độc lập. Plugin là nơi chứa phần đó.
 
 Nếu DAG là **kịch bản phim** (cảnh 1: xóa, cảnh 2: thêm mới), thì Plugin là **diễn viên** thực sự lên sân khấu và làm việc đó.
 
@@ -76,20 +76,6 @@ def insert_table(dataset_name, table_name):
     # Gửi câu query này lên BigQuery để chạy
     client.query(query).result()
 ```
-
----
-
-## Tại sao tách thành 2 file riêng (DAG + Plugin)?
-
-Vì **lịch chạy** và **logic xử lý** là hai việc khác nhau, thay đổi vì lý do khác nhau:
-
-| | DAG file | Plugin file |
-|---|---|---|
-| **Chứa gì** | Lịch chạy, thứ tự bước, cài đặt retry | SQL, logic tính toán |
-| **Thay đổi khi nào** | Muốn đổi giờ chạy, thêm/bớt bước | Muốn sửa logic tính, sửa câu SQL |
-| **Ai thường sửa** | Người setup pipeline | Người viết data |
-
-Nếu nhét tất cả vào một file, khi sửa SQL dễ vô tình làm hỏng lịch chạy, hoặc ngược lại.
 
 ---
 
@@ -139,7 +125,12 @@ airflow/
 
 ## Các loại pipeline (pattern) trong repo
 
-Repo có 4 loại pipeline khác nhau tùy nguồn dữ liệu:
+| Loại | Nguồn → Đích | Cơ chế | Dùng khi |
+|---|---|---|---|
+| **A** | BigQuery → BigQuery | DELETE + INSERT bằng SQL | Tính toán lại từ dữ liệu đã có trong BQ *(phổ biến nhất)* |
+| **B** | MySQL → BigQuery | Full copy qua GCS | Bảng nhỏ, master data — copy toàn bộ mỗi ngày |
+| **C** | MySQL → BigQuery | Incremental + MERGE | Bảng lớn hàng triệu rows — chỉ lấy phần thay đổi trong 24h |
+| **D** | Firestore → BigQuery | Đọc từ lớp flatten | Dữ liệu Firestore đã được flatten sẵn, dùng như Loại A |
 
 ### Loại A — BigQuery → BigQuery *(phổ biến nhất)*
 
@@ -301,12 +292,6 @@ git push origin main
 Tất cả DAG trong repo đang set `catchup=False`. Nghĩa là nếu DAG bị tắt 3 ngày, khi bật lại Airflow **sẽ bỏ qua 3 ngày đó** — không tự chạy bù.
 
 Đây là lựa chọn đúng cho daily reload — không cần tự động chạy bù. Lưu ý: `airflow dags backfill` CLI vẫn hoạt động bình thường, `execution_date` được set đúng ngày lịch sử, không phải ngày hôm nay.
-
-### Khi nào cần backfill?
-
-- Thêm bảng mới, cần dữ liệu từ 3 tháng trước
-- DAG bị lỗi nhiều ngày, cần chạy lại từ ngày X
-- Sửa logic SQL, cần tính lại toàn bộ lịch sử
 
 ### Cách backfill thủ công
 
@@ -498,7 +483,16 @@ Sau đó mọi log được upload lên GCS sau khi task xong — không bao gi�
 
 ## Nguyên tắc nền khi setup Airflow pipeline
 
-Trước khi setup bất kỳ pipeline nào, cần nắm 5 nguyên tắc này. Vi phạm bất kỳ cái nào đều sẽ gặp vấn đề sớm hay muộn.
+6 nguyên tắc này áp dụng cho bất kỳ pipeline nào. Vi phạm bất kỳ nguyên tắc nào đều ảnh hưởng đến tính ổn định của dữ liệu.
+
+| # | Nguyên tắc | Nếu vi phạm |
+|---|---|---|
+| 1 | **Idempotent** — chạy lại bao nhiêu lần cũng ra kết quả giống nhau | Data bị nhân đôi sau mỗi lần retry |
+| 2 | **Atomic** — thành công hoàn toàn hoặc không có gì thay đổi | Bảng rỗng trong vài phút khi pipeline fail |
+| 3 | **Immutable Source** — raw data không bao giờ bị xóa hay sửa, chỉ append | Mất audit trail, không thể backfill lại từ đầu |
+| 4 | **Fail loudly** — khi có lỗi phải raise exception, không nuốt lỗi rồi ghi kết quả rỗng | Kết quả rỗng trông giống thành công, không có cơ chế phát hiện |
+| 5 | **Observability** — mỗi job phải log row count, thời gian chạy, partition nào được xử lý | Data sai lên dashboard mà không có cơ chế phát hiện |
+| 6 | **Backfill phải dễ** — có thể chạy lại bất kỳ ngày nào trong quá khứ mà không ảnh hưởng ngày khác | Mỗi lần sửa data lịch sử phải can thiệp tay, dễ sai |
 
 ---
 
@@ -1039,7 +1033,7 @@ with DAG(
 
 **Dev/Prod = Hai bản chạy riêng biệt của cùng một pipeline, trỏ vào dataset khác nhau.**
 
-Lý do cần tách: Hiện tại mọi thay đổi đang test thẳng trên production. Viết sai SQL là bảng production bị ảnh hưởng ngay — không có chỗ thử an toàn. Với Dev environment, developer test thoải mái trên dataset `trading_dev` trước, chỉ merge vào `main` khi đã ổn.
+Mọi thay đổi code hiện đang được áp dụng trực tiếp lên production — không có môi trường kiểm tra riêng. Dev environment cho phép kiểm thử trên dataset `trading_dev` trước khi merge vào `main`.
 
 Cần tách thành 2 môi trường:
 - **Dev** — để test, thử nghiệm, không ảnh hưởng ai
