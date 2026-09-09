@@ -1,0 +1,1183 @@
+<title>Airflow Daily Update</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f8f9fc;
+  --bg2: #eef0f6;
+  --surface: #ffffff;
+  --surface2: #f0f3fa;
+  --border: #d8dde8;
+  --text: #141820;
+  --text2: #505878;
+  --text3: #8891a8;
+  --accent: #3b5bdb;
+  --accent-bg: #eef1fd;
+  --accent-border: #c0caf8;
+  --green: #2f7c52;
+  --green-bg: #e8f5ee;
+  --yellow: #8a6200;
+  --yellow-bg: #fef8e6;
+  --orange: #c45c00;
+  --orange-bg: #fef0e6;
+  --red: #c02020;
+  --red-bg: #fdeaea;
+  --code-bg: #1a1d2e;
+  --code-text: #c8d0e8;
+  --code-muted: #5a6480;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.page { display: flex; max-width: 1100px; margin: 0 auto; padding: 0 24px; gap: 52px; }
+
+.sidebar { width: 210px; flex-shrink: 0; padding-top: 48px; }
+.sidebar-inner { position: sticky; top: 32px; max-height: calc(100vh - 64px); overflow-y: auto; }
+.toc-label {
+  font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 10px;
+}
+.toc { list-style: none; display: flex; flex-direction: column; gap: 1px; }
+.toc a {
+  display: block; padding: 4px 10px;
+  font-size: 12px; color: var(--text2);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color .13s, border-color .13s;
+  line-height: 1.45;
+}
+.toc a:hover { color: var(--text); border-left-color: var(--border); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+.toc-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+.content { flex: 1; min-width: 0; padding: 48px 0 100px; max-width: 720px; }
+
+.doc-header { margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.doc-eyebrow {
+  font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 10px;
+}
+.doc-title { font-size: 26px; font-weight: 700; line-height: 1.25; text-wrap: balance; margin-bottom: 8px; }
+.doc-sub { font-size: 14px; color: var(--text2); }
+
+.section { margin-bottom: 48px; scroll-margin-top: 24px; }
+h2 {
+  font-size: 17px; font-weight: 600;
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  text-wrap: balance;
+}
+.sec-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--accent); font-weight: 500;
+  flex-shrink: 0;
+}
+h3 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; }
+h4 { font-size: 13px; font-weight: 600; margin: 16px 0 6px; color: var(--text); }
+p { color: var(--text2); margin-bottom: 10px; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--text); font-weight: 600; }
+em { color: var(--text2); }
+ul, ol { margin: 8px 0 10px 20px; color: var(--text2); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+
+code {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;
+  background: var(--surface2); color: var(--text);
+  padding: 1px 5px; border-radius: 3px;
+}
+.code-block { background: var(--code-bg); border-radius: 8px; overflow: hidden; margin: 14px 0; }
+.code-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 16px; border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.code-fname { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--code-muted); }
+.code-lang { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #3a4268; }
+pre { padding: 16px 18px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.7; color: var(--code-text); }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left; font-size: 10.5px; font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--text3); padding: 9px 14px;
+  background: var(--bg2); border-bottom: 1px solid var(--border); font-weight: 500;
+}
+td { padding: 8px 14px; color: var(--text2); border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+td code { font-size: 11.5px; }
+
+.flow { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
+.flow-step {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 5px; padding: 5px 12px; color: var(--text);
+}
+.flow-step.a { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
+.flow-arrow { color: var(--text3); font-size: 13px; padding: 0 2px; }
+
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-bg);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px; margin: 14px 0;
+}
+.callout p { color: var(--accent); margin: 0; font-size: 13.5px; }
+.callout.warn { border-color: var(--orange); background: var(--orange-bg); }
+.callout.warn p { color: var(--orange); }
+.callout.red { border-color: var(--red); background: var(--red-bg); }
+.callout.red p { color: var(--red); }
+
+.steps { display: flex; flex-direction: column; gap: 18px; margin: 14px 0; }
+.step { display: flex; gap: 14px; }
+.step-n {
+  flex-shrink: 0; width: 26px; height: 26px;
+  background: var(--accent-bg); border: 1px solid var(--accent-border);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--accent);
+  margin-top: 2px;
+}
+.step-body { flex: 1; }
+.step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: var(--text2); margin: 0; }
+
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 4px; margin-right: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.badge.red { background: var(--red-bg); color: var(--red); }
+.badge.yellow { background: var(--yellow-bg); color: var(--yellow); }
+.badge.orange { background: var(--orange-bg); color: var(--orange); }
+.badge.gray { background: var(--surface2); color: var(--text3); }
+
+.principle {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 18px; background: var(--surface); margin-bottom: 12px;
+}
+.principle-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.principle-body { font-size: 13px; color: var(--text2); margin: 0; }
+.principle-body p { font-size: 13px; margin-bottom: 6px; }
+.principle-body p:last-child { margin-bottom: 0; }
+.principle-tag {
+  display: inline-block; font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+  background: var(--surface2); color: var(--text3);
+  padding: 1px 6px; border-radius: 3px; margin-right: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em;
+}
+.principle-tag.bad { background: var(--red-bg); color: var(--red); }
+.principle-tag.good { background: var(--green-bg); color: var(--green); }
+.principle-tag.note { background: var(--accent-bg); color: var(--accent); }
+
+.revamp-item { border-left: 3px solid var(--border); padding: 0 0 0 14px; margin-bottom: 16px; }
+.revamp-item.red { border-color: var(--red); }
+.revamp-item.yellow { border-color: var(--yellow); }
+.revamp-item.orange { border-color: var(--orange); }
+.revamp-label { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.revamp-desc { font-size: 13px; color: var(--text2); margin: 0 0 6px; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+.summary {
+  background: var(--accent-bg); border: 1px solid var(--accent-border);
+  border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+  font-size: 15px; font-weight: 600; color: var(--accent);
+  line-height: 1.5;
+}
+
+.ref-group { margin-bottom: 18px; }
+.ref-group-title { font-size: 11px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); margin-bottom: 8px; }
+.ref-list { list-style: none; display: flex; flex-direction: column; gap: 5px; margin: 0; }
+.ref-list li { font-size: 13px; color: var(--text2); }
+.ref-list li::before { content: '→ '; color: var(--text3); }
+
+.cicd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+.cicd-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.cicd-card.has { border-color: var(--green); background: var(--green-bg); }
+.cicd-card-label { font-size: 11px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+.cicd-card.has .cicd-card-label { color: var(--green); }
+.cicd-card.no .cicd-card-label { color: var(--text3); }
+.cicd-card-body { font-size: 13px; color: var(--text2); }
+
+@media (max-width: 768px) {
+  .page { flex-direction: column; gap: 0; padding: 0 16px; }
+  .sidebar { width: 100%; padding-top: 20px; padding-bottom: 4px; }
+  .sidebar-inner { position: static; overflow: visible; max-height: none; }
+  .toc { flex-direction: row; flex-wrap: wrap; gap: 2px; }
+  .toc a { border-left: none; border-bottom: 2px solid transparent; padding: 3px 8px; font-size: 11px; }
+  .content { padding: 20px 0 60px; }
+  .cicd-grid { grid-template-columns: 1fr; }
+  .doc-title { font-size: 22px; }
+}
+</style>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <p class="toc-label">Mục lục</p>
+      <ul class="toc">
+        <li><a href="#airflow">Airflow là gì?</a></li>
+        <li><a href="#dag">DAG là gì?</a></li>
+        <li><a href="#plugin">Plugin là gì?</a></li>
+        <li><a href="#tacho">Tại sao tách 2 file?</a></li>
+        <li><a href="#flow">Hệ thống hoạt động</a></li>
+        <li><a href="#folder">Cấu trúc thư mục</a></li>
+        <li><a href="#patterns">Các loại pipeline</a></li>
+        <li><a href="#guide">Step-by-step</a></li>
+        <li><a href="#cron">Cài đặt giờ chạy</a></li>
+        <li><a href="#slack">Khi có lỗi</a></li>
+        <li><a href="#common-errors">Lỗi thường gặp</a></li>
+        <li><a href="#backfill">Backfill</a></li>
+        <li><a href="#logs">Xem log ở đâu?</a></li>
+        <div class="toc-divider"></div>
+        <li><a href="#principles">Nguyên tắc nền (7)</a></li>
+        <li><a href="#fixlist">Bảng DAG cần sửa</a></li>
+        <li><a href="#revamp">Cần revamp gì?</a></li>
+        <li><a href="#dq">Data Quality</a></li>
+        <li><a href="#monitoring-dag">Monitoring DAG</a></li>
+        <li><a href="#devprod">Dev / Prod</a></li>
+        <li><a href="#cicd">CI/CD là gì?</a></li>
+        <li><a href="#refs">Nguồn tham khảo</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="doc-header">
+      <p class="doc-eyebrow">data-pipelines · airflow · anfin-prod</p>
+      <h1 class="doc-title">Cách setup cập nhật bảng hàng ngày trên Airflow</h1>
+      <p class="doc-sub">Giải thích từ khái niệm cơ bản đến recipe thực tế và đánh giá setup hiện tại.</p>
+    </header>
+
+    <!-- 01 Airflow -->
+    <section class="section" id="airflow">
+      <h2><span class="sec-num">01</span> Airflow là gì?</h2>
+      <p><strong>Airflow = Công cụ đặt lịch chạy tự động cho data pipeline — khai báo một lần, mỗi ngày nó tự chạy đúng giờ, đúng thứ tự, và báo Slack nếu có vấn đề.</strong></p>
+      <p>Lý do cần: Mỗi ngày hàng chục bảng cần được cập nhật — xóa số liệu cũ, điền số liệu mới. Làm tay thì dễ quên, dễ chạy sai thứ tự, và không ai biết khi nào thì xong. Airflow giải quyết cả 3 vấn đề đó.</p>
+    </section>
+
+    <!-- 02 DAG -->
+    <section class="section" id="dag">
+      <h2><span class="sec-num">02</span> DAG là gì?</h2>
+      <p><strong>DAG</strong> <em>(Directed Acyclic Graph)</em> <strong>= Kịch bản mô tả công việc cần làm theo đúng thứ tự, chạy tự động theo lịch.</strong></p>
+      <p>Lý do cần DAG: pipeline thường gồm nhiều bước phụ thuộc nhau (xóa trước, rồi mới điền; điền xong mới check). Nếu không có DAG, thứ tự bước phụ thuộc vào người nhớ — sai thứ tự là ra dữ liệu sai. DAG biến thứ tự đó thành code, Airflow tự đảm bảo luôn đúng thứ tự, đúng giờ, và retry đúng bước khi lỗi.</p>
+      <p>Ví dụ, để cập nhật bảng <code>daily_stock_balance</code> mỗi ngày, cần 2 bước:</p>
+      <div class="flow">
+        <div class="flow-step a">Xóa dữ liệu cũ</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step a">Điền dữ liệu mới</div>
+      </div>
+      <p>DAG file là file Python mô tả:</p>
+      <ul>
+        <li><strong>Lịch chạy:</strong> "Chạy lúc 7h30 sáng (0h30 UTC) mỗi ngày"</li>
+        <li><strong>Thứ tự bước:</strong> Bước 1 xong rồi mới chạy Bước 2</li>
+        <li><strong>Phản ứng khi lỗi:</strong> Gửi thông báo Slack</li>
+      </ul>
+      <p>DAG file <strong>không chứa SQL hay logic xử lý dữ liệu</strong> — nó chỉ là "kịch bản" nói rằng "làm A rồi làm B".</p>
+    </section>
+
+    <!-- 03 Plugin -->
+    <section class="section" id="plugin">
+      <h2><span class="sec-num">03</span> Plugin là gì?</h2>
+      <p><strong>Plugin = File chứa logic xử lý thực sự</strong> — câu SQL, hàm tính toán, kết nối BigQuery.</p>
+      <p>Lý do cần tách riêng: DAG file chỉ nên nói "làm gì, thứ tự nào" — còn <em>làm thế nào</em> (câu SQL cụ thể, logic tính AUM) nên nằm ở chỗ khác để dễ đọc, dễ test, dễ sửa độc lập. Plugin là chỗ đó.</p>
+      <p>Nếu DAG là <strong>kịch bản phim</strong> (cảnh 1: xóa, cảnh 2: thêm mới), thì Plugin là <strong>diễn viên</strong> thực sự lên sân khấu và làm việc đó.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-fname">plugins/trading/bigquery_insert_daily_orders_table.py</span><span class="code-lang">Python</span></div>
+        <pre>def insert_table(dataset_name, table_name):
+    query = f"""
+        INSERT INTO {dataset_name}.{table_name}
+        SELECT user_id, date, balance
+        FROM raw_mysql.portfolio_transaction
+        WHERE date = current_date - 1
+    """
+    client.query(query).result()</pre>
+      </div>
+    </section>
+
+    <!-- 04 Tách -->
+    <section class="section" id="tacho">
+      <h2><span class="sec-num">04</span> Tại sao tách thành 2 file riêng?</h2>
+      <p>Vì lịch chạy và logic xử lý thay đổi vì lý do khác nhau:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>DAG file</th><th>Plugin file</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Chứa gì</strong></td><td>Lịch, thứ tự, retry</td><td>SQL, logic tính toán</td></tr>
+            <tr><td><strong>Thay đổi khi</strong></td><td>Đổi giờ, thêm/bớt bước</td><td>Sửa SQL, sửa logic</td></tr>
+            <tr><td><strong>Ai sửa</strong></td><td>Người setup pipeline</td><td>Người viết data</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Nếu nhét tất cả vào một file, khi sửa SQL dễ vô tình làm hỏng lịch chạy, hoặc ngược lại.</p>
+    </section>
+
+    <!-- 05 Flow -->
+    <section class="section" id="flow">
+      <h2><span class="sec-num">05</span> Toàn bộ hệ thống hoạt động như thế nào?</h2>
+      <div class="code-block">
+        <pre>1. Viết DAG file + Plugin file
+2. Push code lên GitHub (nhánh main)
+         ↓ (trong vòng 60 giây)
+3. Airflow tự kéo code mới về
+         ↓ (đến giờ hẹn)
+4. Chạy Bước 1: xóa bảng cũ (TRUNCATE)
+         ↓
+   Chạy Bước 2: điền dữ liệu mới (INSERT)
+         ↓
+5a. Thành công → ghi log, chờ hôm sau
+5b. Thất bại   → gửi thông báo đỏ lên Slack</pre>
+      </div>
+      <div class="callout"><p><strong>Quan trọng:</strong> Push code lên GitHub là deploy. Không cần restart hay làm gì thêm — Airflow tự nhận trong vòng 60 giây.</p></div>
+    </section>
+
+    <!-- 06 Folder -->
+    <section class="section" id="folder">
+      <h2><span class="sec-num">06</span> Cấu trúc thư mục cần biết</h2>
+      <div class="code-block">
+        <pre>airflow/
+├── dags/               ← DAG files (kịch bản + lịch chạy)
+│   ├── trading/
+│   ├── brokerage/
+│   └── ...
+└── plugins/            ← Plugin files (SQL, logic)
+    ├── libs/
+    │   ├── bigquery_utils.py   ← hàm xóa bảng, merge bảng
+    │   └── slack_utils.py      ← gửi alert Slack khi lỗi
+    └── trading/
+        └── bigquery_insert_...py</pre>
+      </div>
+      <p><strong>Quy tắc đặt tên:</strong></p>
+      <ul>
+        <li>DAG: <code>airflow/dags/{domain}/reload_{bảng}_table.py</code></li>
+        <li>Plugin: <code>airflow/plugins/{domain}/bigquery_insert_{bảng}_table.py</code></li>
+      </ul>
+    </section>
+
+    <!-- 07 Patterns -->
+    <section class="section" id="patterns">
+      <h2><span class="sec-num">07</span> Các loại pipeline trong repo</h2>
+
+      <h3>Loại A — BigQuery → BigQuery <em>(phổ biến nhất)</em></h3>
+      <p>Dữ liệu nguồn đã có sẵn trong BQ, chỉ cần tính toán lại và điền vào bảng đích.</p>
+      <div class="flow">
+        <div class="flow-step a">Xóa bảng cũ</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step a">INSERT bằng SQL trong BQ</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>DAG</th><th>Bảng đích</th></tr></thead>
+          <tbody>
+            <tr><td><code>schedule_bigquery_reload_raw_transaction_table</code></td><td><code>trading.raw_transaction</code></td></tr>
+            <tr><td><code>schedule_bigquery_reload_daily_stock_balance_table</code></td><td><code>trading.daily_stock_balance</code></td></tr>
+            <tr><td><code>schedule_bigquery_reload_trader_churn_status_table</code></td><td><code>trading.trader_churn_status</code></td></tr>
+            <tr><td><code>schedule_bigquery_reload_anfin_daily_aum_per_user_table</code></td><td><code>trading.anfin_daily_aum_per_user</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Loại B — MySQL → BigQuery <em>(full copy)</em></h3>
+      <p>Copy toàn bộ bảng từ MySQL sang BigQuery. Phù hợp bảng nhỏ (master data).</p>
+      <div class="flow">
+        <div class="flow-step">Lấy toàn bộ MySQL</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Lưu tạm GCS</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Load vào BQ</div>
+      </div>
+      <p style="font-size:13px; color: var(--text3);">Ví dụ: bảng <code>users</code>, <code>accounts</code> từ MySQL — copy toàn bộ mỗi ngày cho đơn giản.</p>
+
+      <h3>Loại C — MySQL → BigQuery <em>(chỉ lấy phần thay đổi)</em></h3>
+      <p>Chỉ lấy rows thay đổi trong 24h qua, rồi upsert vào BQ. Phù hợp bảng lớn hàng triệu rows.</p>
+      <div class="flow">
+        <div class="flow-step">Tính khung 24h</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">MySQL → GCS</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Load landing</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">MERGE staging</div>
+      </div>
+      <p style="font-size:13px; color: var(--text3);">Ví dụ: <code>portfolio_transaction</code>, <code>orders</code> — sync phần mới thay vì copy toàn bộ.</p>
+
+      <h3>Loại D — Firestore → BigQuery</h3>
+      <p>Firestore được flatten sẵn vào <code>flattened_firestore.*</code>, các pipeline sau đọc từ đó như Loại A.</p>
+      <p style="font-size:13px; color: var(--text3);">Ví dụ: <code>flattened_firestore.user_kyc</code>, <code>flattened_firestore.user_profile</code> — join vào các bảng trading.</p>
+    </section>
+
+    <!-- 08 Guide -->
+    <section class="section" id="guide">
+      <h2><span class="sec-num">08</span> Hướng dẫn step-by-step — Thêm bảng mới (Loại A)</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <p class="step-title">Tạo bảng trong BigQuery trước</p>
+            <p class="step-desc">Vào BigQuery console, tạo bảng đích với đúng schema. Bảng phải tồn tại trước — code không tự tạo bảng mới.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <p class="step-title">Tạo file Plugin (chứa SQL)</p>
+            <p class="step-desc">Tạo <code>airflow/plugins/{domain}/bigquery_insert_{bảng}_table.py</code>:</p>
+            <div class="code-block" style="margin-top:8px;">
+              <pre>from google.cloud import bigquery
+client = bigquery.Client()
+
+def insert_table(dataset_name: str, table_name: str):
+    query = f"""
+        INSERT INTO {dataset_name}.{table_name}
+        SELECT
+            user_id,
+            transaction_date,
+            SUM(amount) AS total_amount
+        FROM raw_mysql.orders
+        WHERE transaction_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        GROUP BY 1, 2
+    """
+    client.query(query).result()</pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <p class="step-title">Tạo file DAG — copy template, đổi 3 chỗ</p>
+            <div class="code-block" style="margin-top:8px;">
+              <pre>from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+
+from trading.bigquery_insert_daily_orders_table import insert_table  # ← ĐỔI
+from libs.bigquery_utils import truncate_table
+from libs.slack_utils import task_fail_slack_alert
+
+DATASET = "trading"       # ← ĐỔI
+TABLE   = "daily_orders"  # ← ĐỔI
+
+default_args = {
+    "start_date": datetime(2022, 6, 1),
+    "depends_on_past": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+    "on_failure_callback": task_fail_slack_alert,
+}
+
+with DAG(
+    dag_id=f"schedule_bigquery_{TABLE}_table",
+    catchup=False, max_active_runs=1, max_active_tasks=16,
+    schedule_interval="45 00 * * *",  # 7h45 sáng VN
+    default_args=default_args,
+    tags=["bigquery", "reload", TABLE, "schedule"],
+) as dag:
+    truncate_task = PythonOperator(
+        task_id="truncate_bigquery_table",
+        python_callable=truncate_table,
+        op_kwargs={"dataset_name": DATASET, "table_name": TABLE},
+    )
+    insert_task = PythonOperator(
+        task_id="insert_into_bigquery_table",
+        python_callable=insert_table,
+        op_kwargs={"dataset_name": DATASET, "table_name": TABLE},
+    )
+    truncate_task >> insert_task</pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <p class="step-title">Pull về rồi push lên GitHub</p>
+            <div class="code-block" style="margin-top:8px;">
+              <pre>git pull origin main
+git add airflow/dags/trading/reload_daily_orders_table.py
+git add airflow/plugins/trading/bigquery_insert_daily_orders_table.py
+git commit -m "Add daily reload DAG for daily_orders"
+git push origin main</pre>
+            </div>
+            <p class="step-desc" style="margin-top:8px;">Sau tối đa 60 giây DAG xuất hiện trên Airflow UI. Trigger thủ công lần đầu để test.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 Cron -->
+    <section class="section" id="cron">
+      <h2><span class="sec-num">09</span> Cài đặt giờ chạy (cron)</h2>
+      <p>Airflow dùng giờ UTC — Việt Nam = UTC+7, nên trừ 7 giờ:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Muốn chạy lúc (VN)</th><th>Ghi vào schedule_interval</th></tr></thead>
+          <tbody>
+            <tr><td>7h00 sáng</td><td><code>00 00 * * *</code></td></tr>
+            <tr><td>7h30 sáng</td><td><code>30 00 * * *</code></td></tr>
+            <tr><td>8h00 sáng</td><td><code>00 01 * * *</code></td></tr>
+            <tr><td>12h00 trưa</td><td><code>00 05 * * *</code></td></tr>
+            <tr><td>17h00 chiều</td><td><code>00 10 * * *</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;">Cú pháp: <code>{phút} {giờ_UTC} * * *</code></p>
+    </section>
+
+    <!-- 10 Slack -->
+    <section class="section" id="slack">
+      <h2><span class="sec-num">10</span> Khi có lỗi — Slack sẽ báo gì?</h2>
+      <p>Mọi DAG đều có <code>on_failure_callback: task_fail_slack_alert</code>. Khi task fail, Slack tự nhận thông báo đỏ. Tên task trong thông báo nói lên ngay vấn đề ở đâu:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-fname">Lỗi kỹ thuật (SQL sai, quyền, import thiếu)</span></div>
+        <pre>🔴 Task Failed
+DAG:  schedule_bigquery_reload_daily_stock_balance_table
+Task: insert_into_bigquery_table
+Time: 2026-09-09 00:47:03 UTC
+Log:  http://airflow.internal/log?...task_id=insert_into_bigquery_table</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-fname">Lỗi data quality (INSERT xong nhưng data bất thường)</span></div>
+        <pre>🔴 Task Failed
+DAG:  schedule_bigquery_reload_daily_stock_balance_table
+Task: check_data_quality
+Time: 2026-09-09 00:48:21 UTC
+Log:  http://airflow.internal/log?...task_id=check_data_quality
+
+ValueError: daily_stock_balance: chỉ có 0 rows hôm nay</pre>
+      </div>
+      <ul>
+        <li><code>insert_into_bigquery_table</code> fail → lỗi kỹ thuật, xem log Python/SQL</li>
+        <li><code>check_data_quality</code> fail → INSERT chạy được nhưng data có vấn đề, xem BigQuery</li>
+      </ul>
+      <div class="summary">Viết SQL vào Plugin file, viết lịch chạy vào DAG file, push lên GitHub, Airflow tự làm phần còn lại.</div>
+    </section>
+
+    <!-- Common errors -->
+    <section class="section" id="common-errors">
+      <h2><span class="sec-num">10.2</span> Lỗi thường gặp khi viết DAG</h2>
+
+      <h3>Variable.get() ở module level — DAG chết không báo rõ lý do</h3>
+      <p>Airflow parse lại tất cả DAG file mỗi 30 giây. Nếu <code>Variable.get()</code> nằm ngoài function, nó chạy mỗi 30 giây — token hết hạn, connection lỗi → DAG tự chết. Thường chỉ thấy task duration 1–2 giây rồi fail mà không rõ tại sao.</p>
+      <div class="code-block"><pre># SAI — chạy mỗi 30s khi Airflow parse DAG
+token = Variable.get("fb_ads_token")
+def my_task():
+    call_api(token)
+
+# ĐÚNG — chỉ chạy khi task thật sự execute
+def my_task():
+    token = Variable.get("fb_ads_token")
+    call_api(token)</pre></div>
+
+      <h3>Credential BigQuery — không hardcode project ID</h3>
+      <div class="code-block"><pre># SAI — hardcode → 403 Permission Denied khi deploy
+client = bigquery.Client(project="anfin-prod-123")
+
+# ĐÚNG — lấy project từ environment
+import google.auth
+creds, project = google.auth.default(
+    scopes=["https://www.googleapis.com/auth/cloud-platform"]
+)
+client = bigquery.Client(credentials=creds, project=project)</pre></div>
+
+      <h3>Error capture bằng Variable.set — workaround khi log không đọc được</h3>
+      <p>Khi gặp "Log file does not exist", thêm try/except + <code>Variable.set</code> để capture lỗi — không cần log, không cần kubectl:</p>
+      <div class="code-block"><pre>def run_task():
+    try:
+        insert_data()
+    except Exception as e:
+        Variable.set("error_insert_aum_table", f"{type(e).__name__}: {e}")
+        raise  # vẫn raise để DAG báo fail</pre></div>
+      <p>Đọc lỗi tại: Airflow UI → <strong>Admin → Variables</strong> → tìm key <code>error_insert_aum_table</code>.</p>
+      <div class="callout"><p>Đây là cách nhanh nhất để debug DAG <code>anfin_daily_aum_per_user</code> hiện tại — thêm Variable.set vào task insert rồi trigger lại, đọc lỗi ngay trong Variables.</p></div>
+    </section>
+
+    <!-- Backfill -->
+    <section class="section" id="backfill">
+      <h2><span class="sec-num">10.5</span> Backfill — Chạy bù dữ liệu lịch sử</h2>
+      <p>Tất cả DAG trong repo đang set <code>catchup=False</code>. Nghĩa là nếu DAG bị tắt 3 ngày, khi bật lại Airflow <strong>sẽ bỏ qua 3 ngày đó</strong> — không tự chạy bù.</p>
+      <p>Đây là lựa chọn đúng cho daily reload. Nhưng cần biết cách backfill thủ công khi cần dữ liệu lịch sử.</p>
+      <h3>Khi nào cần backfill?</h3>
+      <ul>
+        <li>Thêm bảng mới, cần dữ liệu từ 3 tháng trước</li>
+        <li>DAG bị lỗi nhiều ngày, cần chạy lại từ ngày X</li>
+        <li>Sửa logic SQL, cần tính lại toàn bộ lịch sử</li>
+      </ul>
+      <h3>Cách backfill thủ công</h3>
+      <h4>Cách 1 — CLI (chạy từ trong pod scheduler)</h4>
+      <div class="code-block"><pre>kubectl exec -it airflow-scheduler-0 -n &lt;namespace&gt; -- bash
+
+airflow dags backfill \
+  --start-date 2026-08-01 \
+  --end-date 2026-08-31 \
+  schedule_bigquery_reload_daily_stock_balance_table</pre></div>
+      <h4>Cách 2 — UI (đơn giản hơn cho 1–2 ngày)</h4>
+      <p>Airflow UI → chọn DAG → Grid view → click vào run của ngày cần chạy lại → <strong>Clear</strong> → DAG sẽ chạy lại ngày đó.</p>
+      <div class="callout"><p><strong>Lưu ý:</strong> Backfill chỉ có ý nghĩa nếu pipeline là idempotent (nguyên tắc 1) — chạy lại ngày nào cũng ra đúng dữ liệu của ngày đó.</p></div>
+    </section>
+
+    <!-- 11 Logs -->
+    <section class="section" id="logs">
+      <h2><span class="sec-num">11</span> Xem log lỗi ở đâu?</h2>
+      <p>DAG báo lỗi mà không biết lỗi gì — log nằm ngay trong Airflow UI, không phải ở chỗ nào khác.</p>
+
+      <h3>Cách xem nhanh nhất</h3>
+      <div class="code-block">
+        <pre>Airflow UI → tìm DAG bị lỗi → click run màu đỏ
+→ click task đỏ → tab "Log" góc trên phải
+→ scroll xuống cuối → tìm "ERROR" hoặc "Traceback"</pre>
+      </div>
+      <p>Nếu không biết Airflow UI ở đâu: hỏi team, port mặc định là <code>8080</code>.</p>
+
+      <h3>Các lỗi thường gặp</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Dòng lỗi trong log</th><th>Nghĩa là gì</th></tr></thead>
+          <tbody>
+            <tr><td><code>ModuleNotFoundError</code></td><td>Import thiếu, file plugin không tồn tại hoặc đường dẫn sai</td></tr>
+            <tr><td><code>NotFound: 404</code></td><td>Tên dataset hoặc tên bảng trong BigQuery không đúng</td></tr>
+            <tr><td><code>Forbidden: 403</code></td><td>Service account Airflow không có quyền truy cập bảng đó</td></tr>
+            <tr><td><code>SyntaxError</code></td><td>Lỗi cú pháp Python trong DAG file hoặc plugin file</td></tr>
+            <tr><td><code>ValueError: ...</code></td><td>Thường do check thủ công raise lỗi (rows = 0, v.v.)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Trường hợp cụ thể: <code>reload_anfin_daily_aum_per_user_table</code></h3>
+      <div class="callout warn"><p>DAG này đang fail và log hiện thị: <strong>Log file does not exist</strong> + <strong>Failed to fetch log file from worker. [Errno 2] Name or service not known</strong></p></div>
+      <p>Đây không phải lỗi của DAG — <strong>log bị mất vì scheduler pod đã restart</strong>. Airflow cố fetch log từ pod <code>airflow-scheduler-0</code> nhưng không kết nối được.</p>
+
+      <h4>Cách xem log ngay</h4>
+      <div class="code-block"><pre>kubectl exec -it airflow-scheduler-0 -n &lt;namespace&gt; -- bash
+ls /opt/airflow/logs/dag_id=schedule_bigquery_reload_anfin_daily_aum_per_user_table/</pre></div>
+      <p>Hoặc: trigger lại DAG thủ công → vào tab Log ngay khi task đang chạy để xem real-time.</p>
+
+      <h4>Vấn đề gốc rễ — Log lưu trên pod, pod restart là mất</h4>
+      <p>Fix đúng là cấu hình Remote Logging ra GCS — log được upload lên GCS sau mỗi task, không bao giờ mất dù pod restart:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-fname">helm-airflow-prod.yaml</span><span class="code-lang">YAML</span></div>
+        <pre>config:
+  logging:
+    remote_logging: 'True'
+    remote_base_log_folder: 'gs://your-bucket/airflow-logs'
+    remote_log_conn_id: 'google_cloud_default'</pre>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 12 Principles -->
+    <section class="section" id="principles">
+      <h2><span class="sec-num">12</span> Nguyên tắc nền khi setup Airflow pipeline</h2>
+      <p>5 nguyên tắc này áp dụng cho bất kỳ pipeline nào — vi phạm cái nào đều sẽ gặp vấn đề sớm hay muộn.</p>
+
+      <div class="principle">
+        <p class="principle-title">1. Idempotent — chạy lại bao nhiêu lần cũng ra kết quả giống nhau</p>
+        <div class="principle-body">
+          <p>Pipeline bị lỗi giữa chừng rồi retry là vấn đề thường gặp. Câu hỏi là: sau khi retry, dữ liệu trong bảng có đúng không?</p>
+          <p><span class="principle-tag bad">Nếu vi phạm</span> INSERT không có TRUNCATE trước: lần đầu chạy xong bảng có 1000 rows, retry lần 2 bảng thành 2000 rows — số liệu nhân đôi, dashboard sai không ai biết.</p>
+          <p><span class="principle-tag good">Cách đảm bảo</span> TRUNCATE trước khi INSERT — xóa hết rồi viết lại từ đầu. Chạy lần 1 hay lần 10 thì kết quả như nhau.</p>
+          <p><span class="principle-tag note">Repo này</span> Tất cả Loại A đang dùng TRUNCATE + INSERT — đúng. Nhưng chưa atomic (xem nguyên tắc 2).</p>
+        </div>
+      </div>
+
+      <div class="principle">
+        <p class="principle-title">2. Atomic — hoặc thành công hoàn toàn, hoặc không có gì thay đổi</p>
+        <div class="principle-body">
+          <p>Không được có trạng thái "pipeline chạy một nửa". Bảng đang phục vụ dashboard — nếu pipeline fail giữa chừng, bảng phải vẫn có dữ liệu cũ, không phải bảng rỗng.</p>
+          <p><span class="principle-tag bad">Nếu vi phạm</span> TRUNCATE xong → bảng rỗng → INSERT bắt đầu → INSERT fail → bảng vẫn rỗng. Airflow retry sau 5 phút nhưng trong 5 phút đó dashboard trả về số 0.</p>
+          <p><span class="principle-tag good">Cách đảm bảo</span> Viết vào bảng tạm trước, chỉ swap sang bảng chính khi tạm đã đầy đủ:</p>
+          <div class="code-block"><pre>CREATE OR REPLACE TABLE dataset.table_temp AS SELECT ...;
+ALTER TABLE dataset.table_temp RENAME TO table;</pre></div>
+          <p><span class="principle-tag note">Repo này</span> Tất cả DAG hiện tại đang vi phạm nguyên tắc này.</p>
+        </div>
+      </div>
+
+      <div class="principle">
+        <p class="principle-title">3. Tách biệt lịch chạy và logic xử lý</p>
+        <div class="principle-body">
+          <p>Lịch chạy (giờ nào, retry mấy lần) và logic xử lý (câu SQL, cách tính) là hai thứ thay đổi vì lý do hoàn toàn khác nhau.</p>
+          <p><span class="principle-tag good">Lý do thực tế</span> Người viết SQL không cần biết Airflow. Người setup lịch chạy không cần biết logic tính toán. Tách ra thì hai người làm độc lập, review cũng dễ hơn.</p>
+          <p><span class="principle-tag note">Repo này</span> Đã tách đúng (DAG file và Plugin file riêng). Nhưng SQL đang nhúng trong Python string — không test riêng được, không lint được.</p>
+        </div>
+      </div>
+
+      <div class="principle">
+        <p class="principle-title">4. Observable — hệ thống phải tự báo khi có vấn đề</p>
+        <div class="principle-body">
+          <p>Cần phân biệt 2 loại lỗi:</p>
+          <ul>
+            <li><strong>Lỗi kỹ thuật:</strong> Python crash, SQL syntax sai → Airflow tự phát hiện, Slack báo đỏ ✓</li>
+            <li><strong>Lỗi dữ liệu:</strong> 0 rows, null hàng loạt, số giảm bất thường → Airflow không biết, không báo gì ✗</li>
+          </ul>
+          <p><span class="principle-tag bad">Nếu vi phạm</span> Câu WHERE viết sai, bảng insert 0 rows. DAG vẫn xanh. Slack không báo. Sáng hôm sau mở dashboard thấy số 0, mất nửa ngày tìm nguyên nhân.</p>
+          <p><span class="principle-tag good">Cách đảm bảo</span> Thêm task check sau INSERT: <code>COUNT(*) = 0</code> → raise lỗi; null hàng loạt → raise lỗi; rows hôm nay &lt; 50% hôm qua → raise lỗi.</p>
+          <p><span class="principle-tag note">Repo này</span> Chưa có lớp kiểm tra nào — đây là điểm thiếu quan trọng nhất.</p>
+        </div>
+      </div>
+
+      <div class="principle">
+        <p class="principle-title">5. Dependency rõ ràng — bảng nào phụ thuộc bảng nào phải được khai báo</p>
+        <div class="principle-body">
+          <p>Nhiều bảng dùng kết quả của bảng khác. Nếu không khai báo dependency, tất cả chạy theo giờ cố định và hy vọng bảng nguồn đã xong trước.</p>
+          <p><span class="principle-tag bad">Nếu vi phạm</span> Bảng A chạy 7h, thường xong lúc 7h15. Bảng B cài chạy lúc 7h10 nhưng dùng dữ liệu từ A. Hôm A chậm → B chạy khi A chưa xong → B lấy dữ liệu thiếu, kết quả sai.</p>
+          <p><span class="principle-tag good">Cách đảm bảo</span> Dùng <code>TriggerDagRunOperator</code> để B chỉ chạy sau khi A thành công, không phải theo giờ cố định.</p>
+          <p><span class="principle-tag note">Repo này</span> Tất cả DAG chạy theo giờ cố định, không có khai báo dependency nào.</p>
+        </div>
+      </div>
+
+      <div class="principle">
+        <p class="principle-title">6. SLA / Data freshness — data phải sẵn sàng trước giờ X</p>
+        <div class="principle-body">
+          <p>Biết pipeline fail là một chuyện. Nhưng pipeline chạy xong muộn hơn cam kết cũng là vấn đề — và Airflow không tự báo khi điều này xảy ra.</p>
+          <p><span class="principle-tag bad">Nếu vi phạm</span> DAG chạy lúc 7h, team mở dashboard lúc 8h thấy data thiếu. Airflow không fail, Slack không báo gì. Hoặc pipeline đột nhiên chạy nặng hơn, đến 9h mới xong trong khi báo cáo sáng đã được gửi đi với data cũ.</p>
+          <p><span class="principle-tag good">Cách đảm bảo</span> Khai báo SLA trong DAG:</p>
+          <div class="code-block"><pre>with DAG(
+    sla_miss_callback=sla_miss_alert,
+    default_args={
+        "sla": timedelta(hours=2),  # task phải xong trong 2h
+    }
+)</pre></div>
+          <p><span class="principle-tag note">Repo này</span> Chưa có khai báo SLA nào.</p>
+        </div>
+      </div>
+
+      <div class="principle">
+        <p class="principle-title">7. Lineage — bảng nào từ đâu ra, ai own</p>
+        <div class="principle-body">
+          <p>Khi có vấn đề data, câu hỏi đầu tiên là: bảng này được tính từ bảng nào? Bảng nguồn đó lại từ đâu? Không có lineage thì tìm root cause mất rất nhiều thời gian.</p>
+          <p><span class="principle-tag bad">Nếu vi phạm</span> <code>anfin_daily_aum_per_user</code> bị sai số. Team mất 2 tiếng mới trace ra là <code>raw_transaction</code> bị lỗi từ hôm qua, mà <code>raw_transaction</code> lại lấy từ MySQL pipeline cũng đang có vấn đề.</p>
+          <p><span class="principle-tag good">Cách đảm bảo</span> Tối thiểu: mô tả rõ nguồn dữ liệu trong DAG description. Nâng cao: dùng dbt docs, OpenLineage, hoặc DataHub để tự động track lineage qua các bảng.</p>
+          <p><span class="principle-tag note">Repo này</span> Tags đã có nhưng không đủ để trace. Không có lineage graph.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 Fix list -->
+    <section class="section" id="fixlist">
+      <h2><span class="sec-num">13</span> Bảng DAG hiện tại cần sửa gì</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vấn đề</th><th>Ảnh hưởng đến</th><th>Cần sửa gì</th></tr></thead>
+          <tbody>
+            <tr><td>Không có data check sau INSERT</td><td><strong>Tất cả DAG</strong></td><td>Thêm task <code>check_data_quality</code> sau <code>insert_task</code></td></tr>
+            <tr><td>TRUNCATE+INSERT không atomic</td><td><strong>Tất cả Loại A</strong></td><td>Đổi sang <code>CREATE OR REPLACE TABLE temp → RENAME</code></td></tr>
+            <tr><td>SQL nhúng trong Python</td><td><strong>Tất cả plugin file</strong></td><td>Tách ra file <code>.sql</code> riêng</td></tr>
+            <tr><td>Tên DAG không nhất quán</td><td>DAG có tên <code>insert_bigquery_*</code>, <code>reload_*</code></td><td>Đổi về 1 convention thống nhất</td></tr>
+            <tr><td>Không có dependency giữa DAG</td><td>DAG dùng bảng của DAG khác</td><td>Thêm <code>TriggerDagRunOperator</code></td></tr>
+            <tr><td>Log mất khi pod restart</td><td><strong>Tất cả DAG</strong></td><td>Bật Remote Logging ra GCS trong Helm config</td></tr>
+            <tr><td>Password admin mặc định</td><td>Airflow webserver</td><td>Đổi ngay trong Helm config</td></tr>
+            <tr><td>Không dùng partitioned table</td><td><strong>Tất cả bảng BQ</strong></td><td>Partition theo ngày, chỉ replace partition hôm qua</td></tr>
+            <tr><td>Chưa có SLA</td><td><strong>Tất cả DAG</strong></td><td>Khai báo <code>sla</code> + <code>sla_miss_callback</code></td></tr>
+            <tr><td>Schema evolution không được xử lý</td><td>Pipeline Loại B/C</td><td>Bật <code>ALLOW_FIELD_ADDITION</code> hoặc validate schema trước</td></tr>
+            <tr><td>Không có cost monitoring BQ</td><td>Toàn bộ BQ queries</td><td>Set <code>maximum_bytes_billed</code>, bật budget alert</td></tr>
+            <tr><td>Lineage không được document</td><td>Toàn bộ bảng</td><td>Thêm mô tả nguồn vào DAG description, xem xét OpenLineage</td></tr>
+            <tr><td>LocalExecutor + PostgreSQL built-in</td><td>Toàn bộ hệ thống</td><td>Migrate sang Cloud SQL + CeleryExecutor (dài hạn)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>DAG đang có vấn đề cụ thể</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>DAG</th><th>Vấn đề được biết</th></tr></thead>
+          <tbody>
+            <tr><td><code>schedule_bigquery_reload_anfin_daily_aum_per_user_table</code></td><td>Đang fail, chưa rõ nguyên nhân — xem phần Log lỗi (mục 11)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 14 Revamp -->
+    <section class="section" id="revamp">
+      <h2><span class="sec-num">14</span> Setup hiện tại cần revamp gì?</h2>
+
+      <div class="revamp-item red">
+        <p class="revamp-label"><span class="badge red">🔴 Ngay</span> Setup Remote Logging ra GCS</p>
+        <p class="revamp-desc">Log đang lưu trên local filesystem của scheduler pod. Pod restart là mất hết log — không thể debug được gì. Cần bật <code>remote_logging: True</code> và trỏ vào GCS bucket trong Helm config.</p>
+      </div>
+      <div class="revamp-item red">
+        <p class="revamp-label"><span class="badge red">🔴 Ngay</span> Đổi password admin webserver</p>
+        <p class="revamp-desc">Helm config hiện có <code>username: admin / password: admin</code>. Nếu webserver đang expose qua LoadBalancer mà chưa đổi — vấn đề bảo mật cần xử lý ngay.</p>
+      </div>
+      <div class="revamp-item red">
+        <p class="revamp-label"><span class="badge red">🔴 Ngay</span> Thêm data check sau INSERT <em>(vi phạm nguyên tắc 4)</em></p>
+        <p class="revamp-desc">DAG xanh chỉ nghĩa là không có lỗi Python/SQL — không có nghĩa data đúng. 0 rows, null toàn bộ — vẫn xanh. Cần thêm task đếm rows sau INSERT.</p>
+        <div class="code-block"><pre>def check_table(dataset_name, table_name, min_rows=100):
+    count = list(client.query(
+        f"SELECT COUNT(*) as cnt FROM {dataset_name}.{table_name}"
+    ).result())[0].cnt
+    if count < min_rows:
+        raise ValueError(f"{table_name}: chỉ có {count} rows")</pre></div>
+      </div>
+      <div class="revamp-item yellow">
+        <p class="revamp-label"><span class="badge yellow">🟡 Sớm</span> Dùng temp table thay TRUNCATE+INSERT <em>(vi phạm nguyên tắc 2)</em></p>
+        <p class="revamp-desc">Nếu TRUNCATE xong mà INSERT fail, bảng rỗng — dashboard thấy số 0. Nên viết vào bảng tạm trước, thành công rồi mới swap sang bảng chính.</p>
+        <div class="code-block"><pre>CREATE OR REPLACE TABLE dataset.table_name_temp AS SELECT ...;
+ALTER TABLE dataset.table_name_temp RENAME TO table_name;</pre></div>
+      </div>
+      <div class="revamp-item yellow">
+        <p class="revamp-label"><span class="badge yellow">🟡 Sớm</span> Thống nhất tên DAG</p>
+        <p class="revamp-desc">Cùng 1 repo có 3 kiểu đặt tên. Nên chọn 1 convention: <code>{domain}__{table}__{frequency}</code> ví dụ <code>trading__raw_transaction__daily</code></p>
+      </div>
+      <div class="revamp-item orange">
+        <p class="revamp-label"><span class="badge orange">🟠 Khi có time</span> Tách SQL ra file <code>.sql</code> riêng</p>
+        <p class="revamp-desc">SQL đang nhúng trong Python string — không test riêng được, không lint được, review khó. Nên tách ra <code>plugins/{domain}/sql/{table}.sql</code>.</p>
+      </div>
+      <div class="revamp-item orange">
+        <p class="revamp-label"><span class="badge orange">🟠 Khi có time</span> Khai báo dependency giữa DAG <em>(vi phạm nguyên tắc 5)</em></p>
+        <p class="revamp-desc">Nhiều bảng phụ thuộc nhau nhưng tất cả chỉ chạy theo giờ cố định. Nên dùng <code>TriggerDagRunOperator</code> hoặc Airflow Dataset.</p>
+      </div>
+      <div class="revamp-item yellow">
+        <p class="revamp-label"><span class="badge yellow">🟡 Sớm</span> Dùng partitioned table trong BigQuery</p>
+        <p class="revamp-desc">TRUNCATE + INSERT trên bảng không partition = BQ scan toàn bộ bảng mỗi ngày. Bảng càng lớn, tiền càng nhiều, query càng chậm. Nên partition theo ngày và chỉ replace đúng partition hôm qua — không cần TRUNCATE, idempotent, rẻ hơn nhiều.</p>
+        <div class="code-block"><pre>-- Chỉ ghi vào partition ngày hôm qua, không ảnh hưởng các ngày khác
+INSERT INTO dataset.table
+SELECT ...
+WHERE date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)</pre></div>
+      </div>
+      <div class="revamp-item yellow">
+        <p class="revamp-label"><span class="badge yellow">🟡 Sớm</span> Khai báo SLA trong DAG</p>
+        <p class="revamp-desc">Hiện tại không biết khi nào pipeline chạy muộn — chỉ biết khi fail. Cần khai báo SLA để Airflow alert khi task vượt quá thời gian cho phép.</p>
+      </div>
+      <div class="revamp-item orange">
+        <p class="revamp-label"><span class="badge orange">🟠 Khi có time</span> Xử lý schema evolution</p>
+        <p class="revamp-desc">Khi MySQL thêm/bớt cột, pipeline Loại B/C có thể fail hoặc tệ hơn — chạy xanh nhưng bỏ sót cột mới. Cần thêm bước kiểm tra schema hoặc bật <code>ALLOW_FIELD_ADDITION</code> trong BQ load config.</p>
+      </div>
+      <div class="revamp-item orange">
+        <p class="revamp-label"><span class="badge orange">🟠 Khi có time</span> Cost monitoring BQ</p>
+        <p class="revamp-desc">BigQuery tính tiền theo lượng data scanned. SQL viết sai (thiếu WHERE, không dùng partition) có thể scan TB dữ liệu mà không ai biết cho đến khi thấy hóa đơn. Cần set <code>maximum_bytes_billed</code> và bật budget alert trên GCP.</p>
+      </div>
+      <div class="revamp-item orange">
+        <p class="revamp-label"><span class="badge orange">🟠 Khi có time</span> Lineage documentation</p>
+        <p class="revamp-desc">Hiện tại không có cách trace nhanh "bảng này tính từ bảng nào". Tối thiểu: thêm mô tả nguồn dữ liệu vào DAG description. Nâng cao: dùng dbt docs hoặc OpenLineage.</p>
+      </div>
+      <div class="revamp-item orange">
+        <p class="revamp-label"><span class="badge orange">🟠 Khi có time</span> Connection management</p>
+        <p class="revamp-desc">SSH key cho git-sync đang lưu trong K8s secret <code>airflow-gke-git-secret</code>. Service account key cần được rotate định kỳ. Nên xem xét dùng Workload Identity (GKE) thay vì key file — không cần lưu key ở đâu cả.</p>
+      </div>
+      <div class="revamp-item" style="border-color: var(--border);">
+        <p class="revamp-label"><span class="badge gray">⚪ Dài hạn</span> Cloud SQL + CeleryExecutor</p>
+        <p class="revamp-desc">LocalExecutor ổn hiện tại nhưng scheduler đang cấp 10GB RAM. PostgreSQL built-in tự ghi "not recommended for production" trong helm chart. Nên chuyển sang Cloud SQL và xem xét CeleryExecutor.</p>
+      </div>
+    </section>
+
+    <!-- 15 Data Quality -->
+    <section class="section" id="dq">
+      <h2><span class="sec-num">15</span> Data Quality — kiểm tra dữ liệu sau khi chạy</h2>
+      <p><strong>Data Quality = Lớp kiểm tra tự động để phát hiện data sai trước khi lên dashboard.</strong></p>
+      <p>Lý do cần: Airflow chỉ biết Python có crash hay không — không biết bảng có 0 rows, <code>user_id</code> bị null toàn bộ, hay số liệu giảm 90% so với hôm qua. Không có data quality check thì pipeline xanh nhưng dashboard sai, và thường mất nửa ngày mới phát hiện ra.</p>
+      <p>Có thể bảng có 0 rows vì câu WHERE quá chặt, cột bị null toàn bộ vì join sai, hoặc số giảm bất thường vì source có vấn đề — Airflow vẫn xanh, Slack không báo gì.</p>
+
+      <h3>Lớp 1 — Kiểm tra cơ bản (nên có ngay)</h3>
+      <p>Thêm task sau INSERT, raise lỗi nếu bất thường:</p>
+      <div class="code-block"><pre>def check_data_quality(dataset_name, table_name):
+    query = f"""
+        SELECT
+            COUNT(*)                              AS total_rows,
+            COUNTIF(user_id IS NULL)              AS null_user_id,
+            COUNTIF(date < '2020-01-01')          AS invalid_date
+        FROM {dataset_name}.{table_name}
+        WHERE date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+    """
+    row = list(client.query(query).result())[0]
+
+    if row.total_rows == 0:
+        raise ValueError("Bảng không có dữ liệu hôm nay")
+    if row.null_user_id > 0:
+        raise ValueError(f"Có {row.null_user_id} rows bị null user_id")</pre></div>
+      <p>Flow mới: <code>truncate &gt;&gt; insert &gt;&gt; check_data_quality</code></p>
+
+      <h3>Lớp 2 — So sánh với hôm qua (nâng cao)</h3>
+      <div class="code-block"><pre>SELECT
+    today.total_rows,
+    yesterday.total_rows AS yesterday_rows,
+    SAFE_DIVIDE(today.total_rows, yesterday.total_rows) AS ratio
+FROM
+    (SELECT COUNT(*) AS total_rows FROM dataset.table WHERE date = CURRENT_DATE - 1) today,
+    (SELECT COUNT(*) AS total_rows FROM dataset.table WHERE date = CURRENT_DATE - 2) yesterday</pre></div>
+      <p>Nếu <code>ratio &lt; 0.5</code> (hôm nay chỉ bằng 50% hôm qua) → raise lỗi.</p>
+
+      <h3>Lớp 3 — dbt tests (dài hạn)</h3>
+      <p>Nếu có dùng dbt, nó có sẵn framework test: <code>not_null</code>, <code>unique</code>, <code>accepted_values</code>, <code>relationships</code>. Đây là cách chuyên nghiệp nhất để quản lý data quality ở quy mô lớn.</p>
+    </section>
+
+    <!-- 15b Monitoring DAG -->
+    <section class="section" id="monitoring-dag">
+      <h2><span class="sec-num">15b</span> Daily Monitoring DAG — tóm tắt pipeline qua Slack</h2>
+      <p>Khi chạy 100 bảng mỗi ngày, cần một DAG riêng chạy sau tất cả và gửi 1 tin Slack tổng hợp: bao nhiêu bảng thành công, bao nhiêu fail, và lỗi cụ thể là gì.</p>
+
+      <h3>Cách hoạt động</h3>
+      <p><strong>Bước 1 — Mỗi DAG business capture lỗi vào Variable</strong></p>
+      <p>Trong task của tất cả DAG bình thường, thêm try/except ghi lỗi ra Variable với key chuẩn <code>error__{tên_bảng}</code>:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-fname">plugins/trading/bigquery_insert_raw_transaction_table.py</span><span class="code-lang">Python</span></div>
+        <pre>def run_insert(dataset_name, table_name):
+    try:
+        # ... logic insert ...
+        Variable.delete(f"error__{table_name}")   # xóa lỗi cũ nếu success
+    except Exception as e:
+        Variable.set(f"error__{table_name}", f"{type(e).__name__}: {e}")
+        raise</pre>
+      </div>
+
+      <p><strong>Bước 2 — Monitoring DAG đọc Variable và gửi Slack</strong></p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-fname">dags/monitoring/daily_pipeline_summary.py</span><span class="code-lang">Python</span></div>
+        <pre>from airflow.models import Variable, DagRun
+from airflow import settings
+import requests
+
+SLACK_WEBHOOK = Variable.get("slack_webhook_monitoring")
+TABLES = [
+    "raw_transaction",
+    "daily_stock_balance",
+    "trader_churn_status",
+    "anfin_daily_aum_per_user",
+    # ... list toàn bộ bảng
+]
+
+def send_daily_summary():
+    session = settings.Session()
+    today = datetime.utcnow().date()
+
+    dag_runs = session.query(DagRun).filter(
+        DagRun.execution_date >= today
+    ).all()
+    run_map = {run.dag_id: run.state for run in dag_runs}
+
+    failed, success_count = [], 0
+    for table in TABLES:
+        dag_id = f"schedule_bigquery_reload_{table}_table"
+        state = run_map.get(dag_id)
+        if state == "failed":
+            error = Variable.get(f"error__{table}", default_var="(không rõ lỗi)")
+            failed.append({"table": table, "error": error})
+        elif state == "success":
+            success_count += 1
+
+    total, fail_count = len(TABLES), len(failed)
+
+    if fail_count == 0:
+        text = f"✅ *Daily pipeline report · {today}*\nTất cả {total} bảng chạy thành công."
+    else:
+        lines = [f"🔴 *Daily pipeline report · {today}*",
+                 f"*{total}* bảng chạy  ·  *{success_count}* thành công  ·  *{fail_count}* thất bại\n"]
+        for f in failed:
+            lines.append(f"• `{f['table']}`\n  _{f['error']}_")
+        text = "\n".join(lines)
+
+    requests.post(SLACK_WEBHOOK, json={"text": text})
+    session.close()
+
+with DAG(
+    dag_id="monitoring_daily_pipeline_summary",
+    schedule_interval="30 2 * * *",   # 9h30 sáng VN — sau khi tất cả DAG 7h-8h đã xong
+    catchup=False,
+    default_args={"start_date": datetime(2026, 1, 1)},
+    tags=["monitoring", "slack"],
+) as dag:
+    PythonOperator(task_id="send_slack_summary", python_callable=send_daily_summary)</pre>
+      </div>
+
+      <h3>Kết quả Slack mỗi sáng</h3>
+      <p>Khi có lỗi:</p>
+
+      <!-- Slack mockup: có lỗi -->
+      <div style="border:1px solid #d8dde8;border-radius:10px;overflow:hidden;margin:14px 0;max-width:540px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <div style="background:#3F0E40;padding:8px 14px;display:flex;align-items:center;gap:8px;">
+          <span style="color:#fff;font-size:13px;font-weight:500;"># data-alerts</span>
+          <span style="color:rgba(255,255,255,0.5);font-size:11px;">Pipeline monitoring</span>
+        </div>
+        <div style="padding:16px 16px 8px;background:#fff;">
+          <div style="display:flex;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#E01E5A,#ECB22E);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;margin-top:2px;">🔄</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:baseline;gap:7px;margin-bottom:3px;">
+                <span style="font-size:14px;font-weight:700;color:#1d1c1d;">Airflow Bot</span>
+                <span style="font-size:10px;background:#1264A3;color:#fff;padding:1px 5px;border-radius:3px;font-weight:600;">APP</span>
+                <span style="font-size:11px;color:#616061;">9:00 AM</span>
+              </div>
+              <div style="font-size:14px;color:#1d1c1d;margin-bottom:8px;">Daily pipeline report · <strong>09/09/2026</strong></div>
+              <div style="border-left:4px solid #E01E5A;border-radius:0 4px 4px 0;padding:10px 14px;background:#fafafa;">
+                <div style="font-size:14px;font-weight:700;color:#1d1c1d;margin-bottom:8px;">Pipeline summary</div>
+                <div style="display:flex;gap:22px;margin-bottom:10px;">
+                  <div><div style="font-size:22px;font-weight:700;color:#1d1c1d;line-height:1;">100</div><div style="font-size:11px;color:#616061;margin-top:2px;">bảng chạy</div></div>
+                  <div><div style="font-size:22px;font-weight:700;color:#2EB67D;line-height:1;">97</div><div style="font-size:11px;color:#616061;margin-top:2px;">thành công</div></div>
+                  <div><div style="font-size:22px;font-weight:700;color:#E01E5A;line-height:1;">3</div><div style="font-size:11px;color:#616061;margin-top:2px;">thất bại</div></div>
+                </div>
+                <div style="height:1px;background:#e8e8e8;margin-bottom:10px;"></div>
+                <div style="margin-bottom:8px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><div style="width:8px;height:8px;border-radius:50%;background:#E01E5A;flex-shrink:0;"></div><span style="font-size:13px;font-weight:600;color:#1d1c1d;font-family:monospace;">anfin_daily_aum_per_user</span></div>
+                  <div style="font-size:11px;color:#616061;font-family:monospace;margin-left:14px;margin-bottom:3px;">↳ insert_into_bigquery_table</div>
+                  <div style="font-size:12px;color:#E01E5A;background:rgba(224,30,90,0.08);border-radius:4px;padding:3px 8px;font-family:monospace;margin-left:14px;">NotFound: Table trading.anfin_daily_aum_per_user not found</div>
+                </div>
+                <div style="margin-bottom:8px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><div style="width:8px;height:8px;border-radius:50%;background:#E01E5A;flex-shrink:0;"></div><span style="font-size:13px;font-weight:600;color:#1d1c1d;font-family:monospace;">trader_churn_status</span></div>
+                  <div style="font-size:11px;color:#616061;font-family:monospace;margin-left:14px;margin-bottom:3px;">↳ check_data_quality</div>
+                  <div style="font-size:12px;color:#E01E5A;background:rgba(224,30,90,0.08);border-radius:4px;padding:3px 8px;font-family:monospace;margin-left:14px;">ValueError: chỉ có 0 rows hôm nay</div>
+                </div>
+                <div style="margin-bottom:10px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><div style="width:8px;height:8px;border-radius:50%;background:#E01E5A;flex-shrink:0;"></div><span style="font-size:13px;font-weight:600;color:#1d1c1d;font-family:monospace;">raw_transaction</span></div>
+                  <div style="font-size:11px;color:#616061;font-family:monospace;margin-left:14px;margin-bottom:3px;">↳ insert_into_bigquery_table</div>
+                  <div style="font-size:12px;color:#E01E5A;background:rgba(224,30,90,0.08);border-radius:4px;padding:3px 8px;font-family:monospace;margin-left:14px;">Forbidden: 403 insufficient permissions</div>
+                </div>
+                <div style="display:flex;gap:14px;">
+                  <a href="#" style="font-size:12px;color:#1264A3;text-decoration:none;">→ Xem Airflow UI</a>
+                  <a href="#" style="font-size:12px;color:#1264A3;text-decoration:none;">→ BigQuery console</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:6px 16px 12px;background:#fff;display:flex;gap:6px;">
+          <span style="border:1px solid #d8dde8;border-radius:24px;padding:3px 10px;font-size:12px;color:#616061;cursor:pointer;">👀 2</span>
+          <span style="border:1px solid #d8dde8;border-radius:24px;padding:3px 10px;font-size:12px;color:#616061;cursor:pointer;">✅ 1</span>
+        </div>
+      </div>
+
+      <p>Khi tất cả xanh:</p>
+      <!-- Slack mockup: tất cả xanh -->
+      <div style="border:1px solid #d8dde8;border-radius:10px;overflow:hidden;margin:14px 0;max-width:540px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <div style="background:#3F0E40;padding:8px 14px;">
+          <span style="color:#fff;font-size:13px;font-weight:500;"># data-alerts</span>
+        </div>
+        <div style="padding:16px 16px 8px;background:#fff;">
+          <div style="display:flex;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#E01E5A,#ECB22E);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;margin-top:2px;">🔄</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:baseline;gap:7px;margin-bottom:3px;">
+                <span style="font-size:14px;font-weight:700;color:#1d1c1d;">Airflow Bot</span>
+                <span style="font-size:10px;background:#1264A3;color:#fff;padding:1px 5px;border-radius:3px;font-weight:600;">APP</span>
+                <span style="font-size:11px;color:#616061;">9:00 AM</span>
+              </div>
+              <div style="font-size:14px;color:#1d1c1d;margin-bottom:8px;">Daily pipeline report · <strong>09/09/2026</strong></div>
+              <div style="border-left:4px solid #2EB67D;border-radius:0 4px 4px 0;padding:10px 14px;background:#fafafa;">
+                <div style="font-size:14px;font-weight:700;color:#1d1c1d;margin-bottom:6px;">Pipeline summary</div>
+                <div style="display:flex;gap:22px;">
+                  <div><div style="font-size:22px;font-weight:700;color:#1d1c1d;line-height:1;">100</div><div style="font-size:11px;color:#616061;margin-top:2px;">bảng chạy</div></div>
+                  <div><div style="font-size:22px;font-weight:700;color:#2EB67D;line-height:1;">100</div><div style="font-size:11px;color:#616061;margin-top:2px;">thành công</div></div>
+                </div>
+                <div style="margin-top:8px;font-size:13px;color:#2EB67D;font-weight:500;">✓ Tất cả bảng chạy thành công hôm nay.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn"><p><strong>Lưu ý:</strong> Danh sách <code>TABLES</code> phải giữ đồng bộ với DAG thực tế. Thêm bảng mới phải thêm vào đây. Webhook URL lưu trong Airflow Variable, không hardcode vào code.</p></div>
+    </section>
+
+    <!-- 16 Dev/Prod -->
+    <section class="section" id="devprod">
+      <h2><span class="sec-num">16</span> Môi trường Dev và Prod</h2>
+      <p><strong>Dev/Prod = Hai bản chạy riêng biệt của cùng một pipeline, trỏ vào dataset khác nhau.</strong></p>
+      <p>Lý do cần tách: Hiện tại mọi thay đổi đang test thẳng trên production — viết sai SQL là bảng production bị ảnh hưởng ngay, không có chỗ thử an toàn. Với Dev environment, developer test thoải mái trên dataset <code>trading_dev</code> trước, chỉ merge vào <code>main</code> khi đã ổn.</p>
+
+      <h3>Cấu trúc đề xuất</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Dev</th><th>Prod</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Git branch</strong></td><td><code>develop</code></td><td><code>main</code></td></tr>
+            <tr><td><strong>BigQuery dataset</strong></td><td><code>trading_dev</code>, <code>datamart_dev</code></td><td><code>trading</code>, <code>datamart</code></td></tr>
+            <tr><td><strong>GCS bucket</strong></td><td><code>raw-mysql-dev</code></td><td><code>raw-mysql-prod</code></td></tr>
+            <tr><td><strong>Airflow Variable <code>env</code></strong></td><td><code>dev</code></td><td><code>prod</code></td></tr>
+            <tr><td><strong>Schedule</strong></td><td>Tắt hoặc chạy thưa</td><td>Chạy theo lịch thật</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Cách implement</h3>
+      <p>Repo đã có sẵn <code>Variable.get("env")</code> — GCS bucket đã dùng pattern này. Chỉ cần mở rộng ra BigQuery dataset:</p>
+      <div class="code-block"><pre>from airflow.models import Variable
+
+ENV = Variable.get("env", default_var="dev")  # mặc định dev cho an toàn
+
+def get_dataset(base_name: str) -> str:
+    if ENV == "prod":
+        return base_name
+    return f"{base_name}_{ENV}"   # → "trading_dev"</pre></div>
+      <p>Và git branch strategy: mọi thay đổi đi qua <code>develop</code> trước, chạy ổn trên dev rồi mới merge vào <code>main</code>.</p>
+    </section>
+
+    <!-- 17 CI/CD -->
+    <section class="section" id="cicd">
+      <h2><span class="sec-num">17</span> CI/CD là gì?</h2>
+      <p><strong>CI/CD</strong> <em>(Continuous Integration / Continuous Deployment)</em> <strong>= Hệ thống tự động kiểm tra và triển khai code mỗi khi có thay đổi, thay vì làm tay.</strong></p>
+      <div class="cicd-grid">
+        <div class="cicd-card no">
+          <p class="cicd-card-label">CI — Chưa có</p>
+          <p class="cicd-card-body">Tự động chạy kiểm tra khi có Pull Request — syntax, import, DAG parse — trước khi code vào <code>main</code>. Lý do cần: không có CI thì code sai syntax vẫn merge được, chỉ bị phát hiện sau khi Airflow đã deploy và DAG fail trên production.</p>
+        </div>
+        <div class="cicd-card has">
+          <p class="cicd-card-label">CD — Đã có ✓</p>
+          <p class="cicd-card-body">git-sync kéo code từ <code>main</code> về mỗi 60 giây, DAG tự xuất hiện trên Airflow. Lý do cần: deploy tay dễ quên, dễ nhầm version, dễ thiếu file khi nhiều người thay đổi DAG cùng lúc.</p>
+        </div>
+      </div>
+      <p>Nếu muốn thêm CI, dùng GitHub Actions để chặn lỗi syntax trước khi vào <code>main</code>:</p>
+      <div class="code-block">
+        <pre>python -m py_compile airflow/dags/**/*.py  # kiểm tra syntax
+airflow dags list                           # kiểm tra DAG parse được</pre>
+      </div>
+    </section>
+
+    <!-- 18 Refs -->
+    <section class="section" id="refs">
+      <h2><span class="sec-num">18</span> Nguồn tham khảo</h2>
+      <div class="ref-group">
+        <p class="ref-group-title">Apache Airflow (chính thống nhất)</p>
+        <ul class="ref-list">
+          <li><a href="https://airflow.apache.org/docs/apache-airflow/stable/best-practices.html" target="_blank">Best Practices — Apache Airflow docs</a> — idempotency, cách viết DAG đúng</li>
+        </ul>
+      </div>
+      <div class="ref-group">
+        <p class="ref-group-title">Astronomer (công ty đứng sau Airflow)</p>
+        <ul class="ref-list">
+          <li><a href="https://www.astronomer.io/blog/airflow-best-practices/" target="_blank">Airflow Best Practices</a> — đi sâu hơn docs chính thức</li>
+          <li><a href="https://www.astronomer.io/blog/idempotency-in-airflow/" target="_blank">Idempotency in Airflow</a> — nguyên tắc idempotent trong Airflow</li>
+          <li><a href="https://docs.astronomer.io/learn/dag-best-practices" target="_blank">DAG Authoring Best Practices</a> — checklist đầy đủ khi viết DAG</li>
+        </ul>
+      </div>
+      <div class="ref-group">
+        <p class="ref-group-title">Google Cloud / BigQuery</p>
+        <ul class="ref-list">
+          <li><a href="https://cloud.google.com/bigquery/docs/best-practices-performance-input" target="_blank">BigQuery best practices: Loading data</a> — TRUNCATE, MERGE, temp table</li>
+          <li><a href="https://cloud.google.com/composer/docs/best-practices-dags" target="_blank">Airflow on Google Cloud Composer</a> — best practices trên GCP</li>
+        </ul>
+      </div>
+      <div class="ref-group">
+        <p class="ref-group-title">Khái niệm nền</p>
+        <ul class="ref-list">
+          <li><a href="https://en.wikipedia.org/wiki/ACID" target="_blank">ACID properties — Wikipedia</a> — nguồn gốc của Atomic, Consistent, Isolated, Durable</li>
+          <li><em>Fundamentals of Data Engineering</em> — Joe Reis & Matt Housley (O'Reilly, 2022)</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section[id]');
+const links = document.querySelectorAll('.toc a');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(a => a.classList.remove('active'));
+      const a = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+sections.forEach(s => obs.observe(s));
+</script>
