@@ -226,29 +226,34 @@ hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
 <div class="page">
   <aside class="sidebar">
     <div class="sidebar-inner">
-      <p class="toc-label">Mục lục</p>
+      <p class="toc-label">Khái niệm cơ bản</p>
       <ul class="toc">
-        <li><a href="#airflow">Airflow là gì?</a></li>
-        <li><a href="#dag">DAG là gì?</a></li>
-        <li><a href="#plugin">Plugin là gì?</a></li>
+        <li><a href="#airflow">Airflow</a></li>
+        <li><a href="#dag">DAG</a></li>
+        <li><a href="#plugin">Plugin</a></li>
         <li><a href="#tacho">Tại sao tách 2 file?</a></li>
-        <li><a href="#flow">Hệ thống hoạt động</a></li>
+        <li><a href="#flow">Quy trình setup pipeline</a></li>
         <li><a href="#folder">Cấu trúc thư mục</a></li>
         <li><a href="#patterns">Các loại pipeline</a></li>
-        <li><a href="#guide">Step-by-step</a></li>
+      </ul>
+      <p class="toc-label" style="margin-top:14px;">Nguyên tắc cơ bản</p>
+      <ul class="toc">
+        <li><a href="#principles">Nguyên tắc nền (7)</a></li>
+        <li><a href="#guide">Hướng dẫn step by step</a></li>
         <li><a href="#cron">Cài đặt giờ chạy</a></li>
+        <li><a href="#backfill">Backfill</a></li>
         <li><a href="#slack">Khi có lỗi</a></li>
         <li><a href="#common-errors">Lỗi thường gặp</a></li>
-        <li><a href="#backfill">Backfill</a></li>
-        <li><a href="#logs">Xem log ở đâu?</a></li>
-        <div class="toc-divider"></div>
-        <li><a href="#principles">Nguyên tắc nền (7)</a></li>
-        <li><a href="#fixlist">Bảng DAG cần sửa</a></li>
+        <li><a href="#logs">Xem log</a></li>
+      </ul>
+      <p class="toc-label" style="margin-top:14px;">Định hướng nâng cấp (dự kiến)</p>
+      <ul class="toc">
+        <li><a href="#fixlist">DAG cần sửa</a></li>
         <li><a href="#revamp">Cần revamp gì?</a></li>
         <li><a href="#dq">Data Quality</a></li>
         <li><a href="#monitoring-dag">Monitoring DAG</a></li>
         <li><a href="#devprod">Dev / Prod</a></li>
-        <li><a href="#cicd">CI/CD là gì?</a></li>
+        <li><a href="#cicd">CI/CD</a></li>
         <li><a href="#refs">Nguồn tham khảo</a></li>
       </ul>
     </div>
@@ -326,7 +331,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
 
     <!-- 05 Flow -->
     <section class="section" id="flow">
-      <h2><span class="sec-num">05</span> Toàn bộ hệ thống hoạt động như thế nào?</h2>
+      <h2><span class="sec-num">05</span> Quy trình setup pipeline</h2>
       <div class="code-block">
         <pre>1. Viết DAG file + Plugin file
 2. Push code lên GitHub (nhánh main)
@@ -420,7 +425,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
 
     <!-- 08 Guide -->
     <section class="section" id="guide">
-      <h2><span class="sec-num">08</span> Hướng dẫn step-by-step — Thêm bảng mới (Loại A)</h2>
+      <h2><span class="sec-num">08</span> Hướng dẫn step by step — Thêm bảng mới (Loại A)</h2>
       <div class="steps">
         <div class="step">
           <div class="step-n">1</div>
